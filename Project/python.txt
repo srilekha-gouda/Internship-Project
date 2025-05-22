@@ -1,0 +1,51 @@
+" Python Code To Analyze The Data And Clean The Null Rows"
+import pandas as pd
+
+# Load the original Excel file
+file_path = "human_resources.xlsx"  # Make sure this file is in your working directory
+excel_file = pd.ExcelFile(file_path)
+
+# Load each sheet into a dictionary of DataFrames
+sheets_data = {sheet: excel_file.parse(sheet) for sheet in excel_file.sheet_names}
+
+# Clean Beds sheet: replace nulls in PatientID
+beds_df = sheets_data['Beds'].copy()
+beds_df['Total_Beds'] = beds_df['Total_Beds'].fillna('0')
+beds_df['Occupied_Beds'] = beds_df['Occupied_Beds'].fillna('0')
+beds_df['Available_Beds'] = beds_df['Available_Beds'].fillna('0')
+
+
+# Clean Staff sheet (no missing data found, but make a copy for consistency)
+staff_df = sheets_data['Staff'].copy()
+staff_df['Doctors']=staff_df['Doctors'].fillna('0')
+staff_df['Nurses']=staff_df['Nurses'].fillna('0')
+staff_df['Technicians']=staff_df['Technicians'].fillna('0')
+
+# Clean Equipment sheet (no missing data found)
+equipment_df = sheets_data['Equipment'].copy()
+equipment_df['Total']=equipment_df['Total'].fillna('0')
+equipment_df['In_Use']=equipment_df['In_Use'].fillna('0')
+equipment_df['Under_Maintenance']=equipment_df['Under_Maintenance'].fillna('0')
+
+
+# Clean ICU sheet (no missing data found)
+icu_df = sheets_data['ICU'].copy()
+icu_df['Capacity']=icu_df['Capacity'].fillna('0')
+icu_df['Occupied']=icu_df['Occupied'].fillna('0')
+icu_df['Ventilators']=icu_df['Ventilators'].fillna('0')
+
+# Combine cleaned data
+cleaned_data = {
+    'Beds': beds_df,
+    'Staff': staff_df,
+    'Equipment': equipment_df,
+    'ICU': icu_df
+}
+
+# Save the cleaned data back to a new Excel file
+cleaned_file_path = "Hospital_Dashboard_Data_Cleaned(2).xlsx"
+with pd.ExcelWriter(cleaned_file_path, engine='openpyxl') as writer:
+    for sheet_name, df in cleaned_data.items():
+        df.to_excel(writer, sheet_name=sheet_name, index=False)
+
+print(f"Cleaned data has been saved to '{cleaned_file_path}'.") 
